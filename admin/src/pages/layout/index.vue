@@ -1,5 +1,16 @@
 <template>
 	<a-layout class="v-main">
+		<vSider :isCollapsed="collapsed" />
+		<a-layout>
+			<a-layout>
+				<vHeader :isCollapsed="collapsed" @setCollapsd="changeCollapsed" />
+				<a-layout-content :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }">
+					<RouterView />
+				</a-layout-content>
+			</a-layout>
+		</a-layout>
+	</a-layout>
+	<!-- <a-layout class="v-main">
 		<vHeader />
 		<a-layout>
 			<vSider />
@@ -14,13 +25,16 @@
 				</a-layout-content>
 			</a-layout>
 		</a-layout>
-	</a-layout>
+	</a-layout> -->
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue'
-
 import vHeader from './components/Header/index.vue'
 import vSider from './components/Sider/index.vue'
+const collapsed = ref<boolean>(false);
+
+const changeCollapsed = (e: boolean) => {
+	collapsed.value = e
+}
 </script>
 <style scoped>
 .v-main {

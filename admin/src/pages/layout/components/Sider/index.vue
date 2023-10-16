@@ -1,16 +1,29 @@
 <template>
-	<a-layout-sider breakpoint="lg" collapsed-width="0" width="200" style="background: #fff" @collapse="onCollapse"
-		@breakpoint="onBreakpoint">
-		<a-menu v-model:selectedKeys="selectedKeys" v-model:openKeys="openKeys" mode="inline"
+	<a-layout-sider breakpoint="lg" v-model:collapsed="collapsed" :trigger="null" collapsible>
+		<div class="logo">
+			<img src="@/assets/vue.svg" />
+			<h1 v-if="!collapsed">Blog-Admin</h1>
+		</div>
+		<a-menu v-model:selectedKeys="selectedKeys" theme="dark" v-model:openKeys="openKeys" mode="inline"
 			:style="{ height: '100%', borderRight: 0 }" :items="siderMenu" @click="handleClick"></a-menu>
 	</a-layout-sider>
 </template>
 
 <script lang="ts" setup>
 import { UserOutlined, LaptopOutlined, NotificationOutlined, DashboardOutlined, TableOutlined } from '@ant-design/icons-vue'
-import { ref, reactive, h } from 'vue'
-import { useRouter } from 'vue-router'
+import { h } from 'vue'
 const router = useRouter()
+
+const props = defineProps({
+	isCollapsed: {
+		default: false,
+		type: Boolean,
+	},
+});
+
+const collapsed = computed(() => {
+	return props.isCollapsed
+});
 
 const selectedKeys = ref(['1'])
 const openKeys = ref([])
@@ -55,3 +68,19 @@ const handleClick: MenuProps['onClick'] = e => {
 	})
 }
 </script>
+
+<style lang="scss">
+.logo {
+	display: flex;
+	padding: 10px 4px 10px 10px;
+	align-items: center;
+
+	h1 {
+		display: inline-block;
+		color: #fff;
+		margin: 0;
+		font-size: 20px;
+		margin-left: 10px;
+	}
+}
+</style>

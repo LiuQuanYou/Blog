@@ -35,17 +35,17 @@
 					<a-button :disabled="disabled" type="primary" block html-type="submit" class="login-form-button">
 						登录
 					</a-button>
+
 				</a-form-item>
 			</a-form>
 		</div>
 	</div>
 </template>
 <script lang="ts" setup>
-import { useRoute, useRouter } from 'vue-router'
 import { Login } from '@/api/login'
-import { reactive, computed } from 'vue';
 import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
 import { userStore } from '@/store/user'
+import { message } from 'ant-design-vue';
 
 const user = userStore()
 const router = useRouter()
@@ -66,9 +66,12 @@ const onFinish = async (values: any) => {
 	if (res.code == 200) {
 		user.setToken(res.token);
 		user.setUser(res.data)
+		message.success('登录成功。');
 		router.push({
 			path: "/"
 		})
+	} else {
+		message.error('账号或密码错误。');
 	}
 };
 

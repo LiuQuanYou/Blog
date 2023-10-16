@@ -7,6 +7,7 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import "ant-design-vue/dist/reset.css";
 import "./style.css";
+import "@/assets/css/base.scss";
 
 const app = createApp(App);
 
