@@ -50,7 +50,7 @@ service.interceptors.response.use(
 		return dataAxios
 	},
 	function (error) {
-		if (error.response.status == 403) {
+		if (error.response.status == 403 || error.response.status == 401) {
 			router.push({
 				path: '/login',
 			})

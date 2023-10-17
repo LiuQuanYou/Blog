@@ -68,7 +68,7 @@ const onFinish = async (values: any) => {
 		user.setUser(res.data)
 		message.success('登录成功。');
 		router.push({
-			path: "/"
+			path: "/workplace"
 		})
 	} else {
 		message.error('账号或密码错误。');
@@ -83,7 +83,7 @@ const disabled = computed(() => {
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .login-main {
 	display: flex;
 	flex-direction: column;

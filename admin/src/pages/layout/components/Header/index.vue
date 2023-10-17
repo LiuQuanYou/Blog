@@ -1,14 +1,19 @@
 <template>
 	<a-layout-header class="header" style="background-color: #fff;padding: 0;">
 		<div class="header-top">
-			<div>
-				<menu-unfold-outlined v-if="collapsed" class="trigger" @click.native="changeCollapsed" />
-				<menu-fold-outlined v-else class="trigger" @click.native="changeCollapsed" />
+			<div class="flex">
+				<div>
+					<menu-unfold-outlined v-if="collapsed" class="trigger" @click.native="changeCollapsed" />
+					<menu-fold-outlined v-else class="trigger" @click.native="changeCollapsed" />
+				</div>
+				<div class="breadcurmb">
+					<Breadcurmb />
+				</div>
 			</div>
 			<div class="flex align-center">
 				<a-space direction="vertical">
 					<a-tooltip title="search">
-						<a-button type="link" :icon="h(SearchOutlined)" />
+						<a-button type="link" :icon="h(SearchOutlined)" style="color:#666;" />
 					</a-tooltip>
 				</a-space>
 				<a-space :size="8">
@@ -36,6 +41,9 @@
 			</div>
 		</div>
 	</a-layout-header>
+
+	<!--  搜索组件  -->
+	<HeaderSearch />
 </template>
 
 <script lang="ts" setup>
@@ -47,6 +55,8 @@ import {
 import userImg from '@/assets/img/user.jpg'
 import { userStore } from '@/store/user'
 import { getUserInfo } from '@/api/user'
+import Breadcurmb from '../Breadcrumb/index.vue'
+import HeaderSearch from '../Search/index.vue'
 
 const emit = defineEmits(["setCollapsd"])
 const user = userStore()
@@ -80,7 +90,7 @@ onMounted(async () => {
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .header {
 
 	.header-top {
@@ -89,6 +99,7 @@ onMounted(async () => {
 		align-items: center;
 		height: 48px;
 		padding: 0 10px;
+		border-bottom: 1px solid #ddd;
 
 		.user-btns {
 			display: flex;
@@ -112,6 +123,10 @@ onMounted(async () => {
 		}
 	}
 
-
+	.breadcurmb {
+		margin-left: 20px;
+		padding-top: 60px;
+		font-size: 17px;
+	}
 }
 </style>
