@@ -45,14 +45,6 @@ var Menu: MenuItem[] = [
 		path: '/workplace',
 	},
 	{
-		title: '测试',
-		label: '测试',
-		key: 1,
-		icon: () => h(DashboardOutlined),
-		img: 'DashboardOutlined',
-		path: '/workplace',
-	},
-	{
 		title: '文章管理',
 		label: '文章管理',
 		key: 2,

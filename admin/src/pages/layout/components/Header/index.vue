@@ -13,7 +13,7 @@
 			<div class="flex align-center">
 				<a-space direction="vertical">
 					<a-tooltip title="search">
-						<a-button type="link" :icon="h(SearchOutlined)" style="color:#666;" />
+						<a-button type="link" @click="openSearch" :icon="h(SearchOutlined)" style="color:#666;" />
 					</a-tooltip>
 				</a-space>
 				<a-space :size="8">
@@ -43,7 +43,7 @@
 	</a-layout-header>
 
 	<!--  搜索组件  -->
-	<HeaderSearch />
+	<HeaderSearch ref="headSearch" />
 </template>
 
 <script lang="ts" setup>
@@ -58,6 +58,7 @@ import { getUserInfo } from '@/api/user'
 import Breadcurmb from '../Breadcrumb/index.vue'
 import HeaderSearch from '../Search/index.vue'
 
+const headSearch = ref();
 const emit = defineEmits(["setCollapsd"])
 const user = userStore()
 
@@ -83,6 +84,11 @@ const userData = computed(() => {
 //更改侧边菜单状态
 const changeCollapsed = () => {
 	emit('setCollapsd', !collapsed.value)
+}
+
+//打开搜索弹框
+const openSearch = () => {
+	headSearch.value.showOpen()
 }
 
 onMounted(async () => {

@@ -10,18 +10,22 @@
             </div>
             <!--  搜索结果  -->
             <div class="search-result">
-                <ul class="result-box">
-                    <li class="result-item" v-for="(item, index) in    data.searchResult  " :key="index">
+                <ul class="result-box" v-if="data.searchResult.length != 0" @keyup="keyboard($event)">
+                    <li :class="index == data.searchIndex ? 'current result-item' : 'result-item'"
+                        @mouseenter="data.searchIndex = index" v-for="(item, index) in data.searchResult" :key="index">
                         <div class="item-icon">
                             <component :is="item.img" />
                         </div>
-                        <div class="item-text">{{ joinRow(item) }}</div>
+                        <div class="item-text">{{ item.title }}</div>
                         <div class="item-enter">
                             <EnterOutlined />
                         </div>
                     </li>
 
                 </ul>
+                <div v-else class="empty">
+                    暂无搜索结果
+                </div>
             </div>
 
             <!--  底部提示  -->
@@ -63,36 +67,62 @@ import { ref, h } from 'vue';
 import { EnterOutlined } from '@ant-design/icons-vue'
 import { useStore } from '@/store/index'
 import { MenuItem } from '@/models/Sidebar'
+import router from '@/router';
 
 const IndexStore = useStore()
 
 const data = reactive({
     searchStr: '',   //搜索内容
-    open: true,
-    searchResult: [] as MenuItem[]
+    open: false,
+    searchResult: [] as MenuItem[],  //搜索结果
+    searchIndex: 0  //选中数据下标
 })
 
-const showModal = () => {
-    data.open = true
-};
+//监听弹框打开、关闭状态
+watch(() => data.open, (newValue, oldValue) => {
+    if (newValue) {
+        //打开添加按键监听
+        window.addEventListener('keyup', keyboard);
+    } else {
+        //关闭组件时，移除事件监听器，防止内存泄漏
+        window.removeEventListener('keyup', keyboard)
+        data.searchResult = []
+        data.searchIndex = 0
+        data.searchStr = ''
+    }
+})
+
+
+
+//监听输入框内容，根据侧边栏菜单模糊匹配
+watch(() => data.searchStr, (newValue, oldValue) => {
+    if (newValue) {
+        var menu = IndexStore.SliderMenu
+        data.searchResult = searchMenu(menu, newValue)
+        console.log(data.searchResult)
+    } else {
+        data.searchResult = []
+    }
+});
 
 /**
  * 递归模糊匹配
  * @param menu 菜单
  * @param searchTerm 模糊查询值
  */
-const searchMenu = (menu: any, searchTerm: string): any => {
+const searchMenu = (menu: any, searchTerm: string, ancestors = <any>[]): any => {
     const result = <any>[];
     menu.forEach((item: any) => {
-        if (item.title.includes(searchTerm)) {
+        if (item.title.includes(searchTerm) && !item.children) {
             result.push(item);
         }
         if (item.children) {
             const matchingChildren = searchMenu(item.children, searchTerm);
-            console.log(matchingChildren)
             if (matchingChildren.length > 0) {
                 matchingChildren.map((row: any) => {
-                    result.push({ ...row })
+                    var obj = { ...row }
+                    obj.title = `${item.title} > ${obj.title}`;
+                    result.push({ ...obj })
                 })
             }
         }
@@ -100,26 +130,60 @@ const searchMenu = (menu: any, searchTerm: string): any => {
     return result;
 }
 
-//监听输入框内容，根据侧边栏菜单模糊匹配
-watch(() => data.searchStr, (newValue, oldValue) => {
-    var menu = IndexStore.SliderMenu
-    data.searchResult = searchMenu(menu, newValue)
-    console.log(data.searchResult)
-});
-
-const joinRow = computed(() => (item: any) => {
-    if (item.children) {
-        console.log(JSON.stringify(item.children))
-        return 123
-    } else {
-        return item.title
+/**
+ * 键盘控制上、下、回车选中
+ */
+const keyboard = (ev: any) => {
+    var searchIndex = data.searchIndex
+    var searchResult = data.searchResult
+    var res = 0
+    switch (ev.keyCode) {
+        case 38:
+            //向上
+            res = searchIndex == 0 ? searchResult.length - 1 : searchIndex - 1
+            break;
+        case 40:
+            //向下
+            res = searchIndex == searchResult.length - 1 ? 0 : searchIndex + 1
+            break;
+        case 13:
+            //回车选中
+            var row = data.searchResult[searchIndex]
+            router.push({
+                path: row.path!
+            })
+            data.open = false;
+            break
     }
+    data.searchIndex = res
+}
+
+
+const showOpen = () => {
+    data.open = true
+}
+
+
+//给父组件暴漏方法
+defineExpose({
+    showOpen
 })
+
 </script>
   
 <style scoped lang="scss">
 .search-top {
     padding: 0 14px;
+}
+
+.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100px;
+    color: #969faf;
+    font-size: 18px;
 }
 
 .search-result {
@@ -156,7 +220,8 @@ const joinRow = computed(() => (item: any) => {
                 display: none;
             }
 
-            &:hover {
+            &:hover,
+            &.current {
                 background-color: #0960bd;
                 color: #fff;
 
