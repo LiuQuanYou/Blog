@@ -4,10 +4,7 @@ export interface MenuItem {
 	icon?: any
 	key?: any
 	img?: string
+	parent_id?:string
 	path?: string
 	children?: MenuItem[]
-}
-
-export interface MenuData {
-	siderMenu: MenuItem[]
 }

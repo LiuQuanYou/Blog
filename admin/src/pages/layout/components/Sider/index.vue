@@ -1,21 +1,20 @@
 <template>
-	<a-layout-sider breakpoint="lg" v-model:collapsed="collapsed" :trigger="null" collapsible>
-		<div class="logo">
-			<img src="@/assets/vue.svg" />
-			<h1 v-if="!collapsed">Blog-Admin</h1>
-		</div>
-		<a-menu v-model:selectedKeys="selectedKeys" theme="dark" v-model:openKeys="openKeys" mode="inline"
-			:style="{ height: '100%', borderRight: 0 }" :items="SliderMenu" @click="handleClick"></a-menu>
-	</a-layout-sider>
+	<div class="logo">
+		<img src="@/assets/vue.svg" />
+		<h1 v-show="!collapsed">Blog-Admin</h1>
+	</div>
+	<a-menu v-model:selectedKeys="selectedKeys" theme="dark" v-model:openKeys="openKeys" mode="inline"
+		:style="{ height: '100%', borderRight: 0 }" :items="SliderMenu" @click="handleClick"></a-menu>
 </template>
 
 <script lang="ts" setup>
-import { UserOutlined, LaptopOutlined, NotificationOutlined, DashboardOutlined, TableOutlined } from '@ant-design/icons-vue'
+import { UserOutlined, LaptopOutlined, NotificationOutlined, DashboardOutlined, TableOutlined, SettingOutlined } from '@ant-design/icons-vue'
 import { h } from 'vue'
-import type { MenuProps } from 'ant-design-vue';
-
+import { MenuProps } from 'ant-design-vue';
+import { getMenu } from '@/api/user'
 import { MenuItem } from '@/models/Sidebar'
 import { useStore } from '@/store/index'
+import BlogIcon from '@/components/Icon/index.vue'
 
 const IndexStor = useStore()
 const router = useRouter()
@@ -27,6 +26,11 @@ const props = defineProps({
 	},
 });
 
+
+const SliderMenu = computed(() => {
+	return IndexStor.SliderMenu
+})
+
 const collapsed = computed(() => {
 	return props.isCollapsed
 });
@@ -34,74 +38,39 @@ const collapsed = computed(() => {
 const selectedKeys = ref(['1'])
 const openKeys = ref([])
 
-
-var Menu: MenuItem[] = [
-	{
-		title: '工作台',
-		label: '工作台',
-		key: 1,
-		icon: () => h(DashboardOutlined),
-		img: 'DashboardOutlined',
-		path: '/workplace',
-	},
-	{
-		title: '文章管理',
-		label: '文章管理',
-		key: 2,
-		icon: () => h(TableOutlined),
-		img: 'TableOutlined',
-		children: [
-			{
-				key: '2-1',
-				title: '文章列表',
-				label: '文章列表',
-				path: '/article/list',
-				children: [
-					{
-						key: '2-1-1',
-						title: '测试三级菜单',
-						label: '测试三级菜单',
-						path: '/article/test',
-					}
-				]
-			},
-			{
-				key: '2-2',
-				title: '测试列表',
-				label: '测试列表',
-				path: '/article/list',
-				children: [
-					{
-						key: '2-2-1',
-						title: '测试三级菜单2',
-						label: '测试三级菜单2',
-						path: '/article/test',
-					}
-				]
-			},
-		],
-	},
-]
-const SliderMenu = computed(() => {
-	return IndexStor.SliderMenu
-});
-
-const onCollapse = (collapsed: boolean, type: string) => {
-	console.log(collapsed, type)
-}
-
-const onBreakpoint = (broken: boolean) => {
-	console.log(broken)
-}
-
 onMounted(() => {
-	IndexStor.setMenu(Menu)
+	getMenuData();
 })
+
+/**
+ * 获取菜单数据
+ */
+const getMenuData = async () => {
+	var res = await getMenu()
+	if (res.code == 200) {
+		IndexStor.setMenu(res.data)
+	}
+}
 
 /**
  * 菜单点击路由跳转
  */
 const handleClick: MenuProps['onClick'] = e => {
+	var row = e.item
+	var tabs = IndexStor.MenuTabs;
+	var checkRow = tabs.find((item) => item.path == e.item.path)
+	if (!checkRow) {
+		tabs.push({
+			title: row.title,
+			path: row.path
+		})
+		IndexStor.setMenuTabs(tabs)
+		IndexStor.TabsIndex = tabs.length - 1
+	} else {
+		//当前路由已在tabs中存在
+		var index = tabs.findIndex((item) => item.path == row.path)
+		IndexStor.TabsIndex = index
+	}
 	router.push({
 		path: e.item.path,
 	})

@@ -21,6 +21,14 @@ export const routes = [
 				path: 'article/test',
 				component: () => import('@/pages/article/test.vue'),
 			},
+			{
+				path: 'setting',
+				component: () => import('@/pages/setting/index.vue'),
+			},
+			{
+				path: 'setting/menu',
+				component: () => import('@/pages/setting/menu.vue'),
+			},
 		],
 	},
 	{
@@ -75,9 +83,8 @@ router.beforeEach((to, from, next) => {
 	const IndexStore = useStore()
 	var fullPath = to.fullPath
 	var SliderMenu = IndexStore.SliderMenu
-
+	//存储面包屑
 	IndexStore.setBreadcrumb(getBreadcrumb(SliderMenu, fullPath))
-
 	next()
 })
 

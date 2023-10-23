@@ -12,7 +12,7 @@
 			</div>
 			<div class="flex align-center">
 				<a-space direction="vertical">
-					<a-tooltip title="search">
+					<a-tooltip title="搜索">
 						<a-button type="link" @click="openSearch" :icon="h(SearchOutlined)" style="color:#666;" />
 					</a-tooltip>
 				</a-space>
@@ -40,6 +40,8 @@
 				</a-space>
 			</div>
 		</div>
+		<!--  已打开页面路由  -->
+		<HeaderTabs />
 	</a-layout-header>
 
 	<!--  搜索组件  -->
@@ -57,6 +59,7 @@ import { userStore } from '@/store/user'
 import { getUserInfo } from '@/api/user'
 import Breadcurmb from '../Breadcrumb/index.vue'
 import HeaderSearch from '../Search/index.vue'
+import HeaderTabs from '../Tabs/index.vue'
 
 const headSearch = ref();
 const emit = defineEmits(["setCollapsd"])
@@ -73,7 +76,7 @@ const props = defineProps({
 
 //切换侧边菜单展开、收缩
 const collapsed = computed(() => {
-	return props.isCollapsed
+	return props.isCollapsed;
 });
 
 //获取当前登录用户信息
@@ -98,6 +101,7 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .header {
+	height: 92px;
 
 	.header-top {
 		display: flex;
