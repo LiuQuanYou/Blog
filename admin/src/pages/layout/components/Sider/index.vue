@@ -11,13 +11,15 @@
 import { UserOutlined, LaptopOutlined, NotificationOutlined, DashboardOutlined, TableOutlined, SettingOutlined } from '@ant-design/icons-vue'
 import { h } from 'vue'
 import { MenuProps } from 'ant-design-vue';
-import { getMenu } from '@/api/user'
+import { getMenu } from '@/api/menu'
 import { MenuItem } from '@/models/Sidebar'
 import { useStore } from '@/store/index'
 import BlogIcon from '@/components/Icon/index.vue'
+import _ from 'lodash'
 
 const IndexStor = useStore()
 const router = useRouter()
+const aMenuKey = ref(1)
 
 const props = defineProps({
 	isCollapsed: {
@@ -26,9 +28,22 @@ const props = defineProps({
 	},
 });
 
+const getTreeList = (list: any) => {
+	var listData = list.filter((item: any) => item.status == 1)
+	listData.map((item: any) => {
+		if (item['children']) {
+			item.children = getTreeList(item.children);
+		}
+		item.iconClass = item.iconClass ? item.iconClass : null
+	})
+	return listData
+}
+
 
 const SliderMenu = computed(() => {
-	return IndexStor.SliderMenu
+	var menuData = _.cloneDeep(IndexStor.SliderMenu)
+	var data = getTreeList(menuData)
+	return data
 })
 
 const collapsed = computed(() => {

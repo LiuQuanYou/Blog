@@ -15,7 +15,7 @@
                     </template>
                     <!--  图标  -->
                     <template v-if="column.key === 'iconClass'">
-                        <component :is="record.iconClass" />
+                        <component v-if="record.iconClass" :is="record.iconClass" />
                     </template>
                     <!--  操作  -->
                     <template v-else-if="column.dataIndex === 'operation'">
@@ -36,10 +36,11 @@
 <script lang="ts" setup>
 import { reactive, ref, h } from 'vue';
 import { DownOutlined, UpOutlined, DeleteFilled, EditFilled, PlusOutlined } from '@ant-design/icons-vue';
-import type { FormInstance } from 'ant-design-vue';
+import { FormInstance, message } from 'ant-design-vue';
 import { useStore } from '@/store/index'
 import { MenuItem } from '@/models/Sidebar'
-import { removeMenu } from '@/api/user'
+import { removeMenu } from '@/api/menu'
+import { config } from '@/utils'
 import operateMenu from './components/menu.vue'
 
 const IndexStor = useStore()
@@ -108,8 +109,12 @@ const editMenu = ((record: MenuItem) => {
 const deleteMenu = (async (id: number) => {
     var res = await removeMenu(id)
     if (res.code == 200) {
+        message.success("删除成功")
         IndexStor.setMenu(res.data)
     }
+})
+
+onMounted(() => {
 })
 </script>
 

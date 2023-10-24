@@ -54,17 +54,22 @@ export const useStore = defineStore({
 			})
 			return organizedItems
 		},
+		formatBookmarksTreeList(list: any) {
+			list.map((item: any) => {
+				var Icon = item.icon
+				item.iconClass = Icon
+				item.icon = () => h(BlogIcon, { Icon })
+				if (item['children']) {
+					item.children = this.formatBookmarksTreeList(item.children)
+				}
+				return item
+			})
+			return list
+		},
 		//存储菜单内容
 		setMenu(data: MenuItem[]) {
 			var Menu = this.organizeDataByParentId(data, null)
-			Menu.forEach((item: any, index) => {
-				if (item.icon) {
-					var Icon = item.icon
-					item.iconClass = Icon
-					item.icon = () => h(BlogIcon, { Icon })
-				}
-			})
-			this.SliderMenu = Menu
+			this.SliderMenu = this.formatBookmarksTreeList(Menu)
 		},
 		//动态存储面包屑
 		setBreadcrumb(data: MenuItem[]) {

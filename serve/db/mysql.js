@@ -126,9 +126,8 @@ let selectAll = async function (tableName, callBack) {
  * 添加字段到指定表
  * @param addObj 需要添加的对象字段，例：{ name: 'name', age: 20 }
  * @param tableName 数据库表名
- * @param callBack 回调函数
  */
-let add = async function (addObj, tableName, callBack) {
+let add = async function (addObj, tableName) {
   try {
     let ps = new mssql.PreparedStatement(await poolConnect);
     let sql = "insert into " + tableName + "(";
@@ -151,16 +150,19 @@ let add = async function (addObj, tableName, callBack) {
       }
     }
     sql = sql.substring(0, sql.length - 1) + ") SELECT @@IDENTITY id"; // 加上SELECT @@IDENTITY id才会返回id
-    ps.prepare(sql, function (err) {
-      if (err) console.log(err);
-      ps.execute(addObj, function (err, recordset) {
-        callBack(err, recordset);
-        ps.unprepare(function (err) {
-          if (err)
-            console.log(err);
+    return new Promise((resolve, reject) => {
+      ps.prepare(sql, function (err) {
+        if (err) console.log(err);
+        ps.execute(addObj, function (err, recordset) {
+          resolve(recordset)
+          ps.unprepare(function (err) {
+            if (err)
+              reject(err)
+          });
         });
       });
-    });
+    })
+
   } catch (e) {
     console.log(e)
   }
@@ -171,9 +173,8 @@ let add = async function (addObj, tableName, callBack) {
  * @param updateObj 需要更新的对象字段，例：{ name: 'name', age: 20 }
  * @param whereObj 需要更新的条件，例: { id: id }
  * @param tableName 数据库表名
- * @param callBack 回调函数
  */
-let update = async function (updateObj, whereObj, tableName, callBack) {
+let update = async function (updateObj, whereObj, tableName) {
   try {
     let ps = new mssql.PreparedStatement(await poolConnect);
     let sql = "update " + tableName + " set ";
@@ -201,17 +202,20 @@ let update = async function (updateObj, whereObj, tableName, callBack) {
       }
     }
     sql = sql.substring(0, sql.length - 5);
-    ps.prepare(sql, function (err) {
-      if (err)
-        console.log(err);
-      ps.execute(updateObj, function (err, recordset) {
-        callBack(err, recordset);
-        ps.unprepare(function (err) {
-          if (err)
-            console.log(err);
+    return new Promise((resolve, reject) => {
+      ps.prepare(sql, function (err) {
+        if (err)
+          console.log(err);
+        ps.execute(updateObj, function (err, recordset) {
+          resolve(recordset)
+          ps.unprepare(function (err) {
+            if (err)
+              reject(err)
+          });
         });
       });
-    });
+    })
+
   } catch (e) {
     console.log(e)
   }

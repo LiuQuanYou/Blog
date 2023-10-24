@@ -1,5 +1,5 @@
 <template>
-    <a-drawer :title="title" :width="720" :open="open" :body-style="{ paddingBottom: '80px' }"
+    <a-drawer :title="pageType == 1 ? '添加菜单' : '修改菜单'" :width="720" :open="open" :body-style="{ paddingBottom: '80px' }"
         :footer-style="{ textAlign: 'right' }" @close="onClose">
         <a-form :model="form" ref="formRef" :rules="rules" layout="vertical">
             <a-row :gutter="16">
@@ -30,7 +30,7 @@
                     <a-form-item label="图标" name="iconClass">
                         <a-input v-model:value="form.iconClass">
                             <template #addonAfter>
-                                <component :is="form.iconClass" />
+                                <component :is="form.iconClass ? form.iconClass : 'SettingOutlined'" />
                             </template>
                         </a-input>
                     </a-form-item>
@@ -64,13 +64,16 @@ import { reactive, ref } from 'vue';
 import { PlusOutlined } from '@ant-design/icons-vue';
 import type { Rule } from 'ant-design-vue/es/form';
 import { MenuItem } from '@/models/Sidebar'
-import type { TreeSelectProps } from 'ant-design-vue';
+import { message, TreeSelectProps } from 'ant-design-vue';
 import { useStore } from '@/store/index'
+import { addMenu, updateMenu } from '@/api/menu'
+import { config } from '@/utils'
 
 const IndexStor = useStore()
 const open = ref<boolean>(false);
 const formRef = ref();
-const title = ref('')
+const pageType = ref()
+const rowId = ref('')
 
 const form = ref({
     label: '',
@@ -79,7 +82,9 @@ const form = ref({
     status: 1,
     order_by: '1',
     parent_id: '',
+    title: '',
     iconClass: 'SettingOutlined',
+    icon: ''
 });
 
 const formatBookmarksTreeList = (list: any) => {
@@ -116,11 +121,12 @@ watch(value, () => {
 const showDrawer = (type: number, row: any = {}) => {
     if (type == 1) {
         //新增
-        title.value = '添加菜单'
+        pageType.value = type
     } else {
         //编辑
-        title.value = '编辑菜单'
+        pageType.value = type
         form.value = { ...row }
+        rowId.value = row.id
     }
     open.value = true;
 };
@@ -129,12 +135,14 @@ const onClose = () => {
     formRef.value.resetFields();
     form.value = {
         label: '',
+        title: '',
         path: '',
         page_type: '',
         status: 1,
         order_by: '1',
         parent_id: '',
-        iconClass: 'SettingOutlined',
+        icon: '',
+        iconClass: '',
     }
     open.value = false;
 };
@@ -142,8 +150,29 @@ const onClose = () => {
 const onSubmit = () => {
     formRef.value
         .validate()
-        .then(() => {
+        .then(async () => {
             console.log('values', form, toRaw(form));
+            form.value.title = form.value.label
+            form.value.icon = form.value.iconClass
+            var params = JSON.parse(JSON.stringify(form.value))
+            if (pageType.value == 1) {
+                //添加
+                var res = await addMenu(params)
+                if (res.code == 200) {
+                    message.success("添加成功~")
+                    IndexStor.setMenu(res.data)
+                    onClose()
+                }
+            } else {
+                //修改
+                params.id = rowId.value
+                var res = await updateMenu(params)
+                if (res.code == 200) {
+                    message.success("修改成功~")
+                    IndexStor.setMenu(res.data)
+                    onClose()
+                }
+            }
         })
         .catch((error: any) => {
             console.log('error', error);

@@ -12,7 +12,7 @@ module.exports = {
   apiError: function (errorMsg) {
     return {
       code: 500,
-      errorMsg
+      message: errorMsg
     }
   }
 }

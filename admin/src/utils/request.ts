@@ -3,6 +3,7 @@ import router from '@/router'
 import nprogress from 'nprogress' // 进度条
 import 'nprogress/nprogress.css' //样式必须引入
 import { userStore } from '@/store/user'
+import { message } from 'ant-design-vue'
 
 declare module 'axios' {
 	interface AxiosResponse<T = any> {
@@ -47,6 +48,9 @@ service.interceptors.response.use(
 		// dataAxios 是 axios 返回数据中的 data
 		const dataAxios = response.data
 		nprogress.done()
+		if (dataAxios.code == 500) {
+			message.error(dataAxios.message)
+		}
 		return dataAxios
 	},
 	function (error) {
