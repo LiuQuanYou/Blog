@@ -13,7 +13,7 @@ interface loginForm {
  */
 export const Login = (data: loginForm) => {
 	return request({
-		url: '/user/login',
+		url: '/auth/login',
 		method: 'post',
 		data,
 	})

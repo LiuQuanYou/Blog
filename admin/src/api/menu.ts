@@ -8,7 +8,7 @@ import { MenuRow } from '@/models/Sidebar'
  */
 export const getMenu = (data: any = {}) => {
 	return request({
-		url: '/user/getMenu',
+		url: '/menu/getMenu',
 		data,
 		method: 'post',
 	})
@@ -21,7 +21,7 @@ export const getMenu = (data: any = {}) => {
  */
 export const removeMenu = (id: number) => {
 	return request({
-		url: '/user/deleteMenu',
+		url: '/menu/deleteMenu',
 		data: {
 			id,
 		},
@@ -36,7 +36,7 @@ export const removeMenu = (id: number) => {
  */
 export const addMenu = (row: MenuRow) => {
 	return request({
-		url: '/user/addMenu',
+		url: '/menu/addMenu',
 		data: row,
 		method: 'post',
 	})
@@ -49,7 +49,7 @@ export const addMenu = (row: MenuRow) => {
  */
 export const updateMenu = (row: MenuRow) => {
 	return request({
-		url: '/user/editMenu',
+		url: '/menu/editMenu',
 		data: row,
 		method: 'post',
 	})

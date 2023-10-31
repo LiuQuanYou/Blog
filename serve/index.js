@@ -13,8 +13,10 @@ server.use(cors())
 
 const user = require('./api/user.js')
 const upload = require("./api/upload")
+const uploads = require("./api/uploads")
 server.use('/user', user)
 server.use('/upload', upload)
+server.use('/uploads', uploads)
 
 //3.开启服务器
 server.listen(8002, () => {

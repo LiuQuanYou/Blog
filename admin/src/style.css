@@ -15,6 +15,11 @@
  * 修正IE 8/9 中未定义的块级元素。
  */
 
+body {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
 article,
 aside,
 details,

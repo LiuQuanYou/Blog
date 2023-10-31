@@ -1,16 +1,15 @@
 <template>
     <div>
-        <a-form ref="formRef" name="advanced_search" class="ant-advanced-search-form" :model="searchState"
-            @finish="onFinish">
+        <a-form ref="formRef" name="advanced_search" class="ant-advanced-search-form" :model="query" @finish="onFinish">
             <a-row :gutter="24">
                 <a-col :span="8">
                     <a-form-item name="title" label="标题">
-                        <a-input v-model:value="searchState.title" placeholder="文章标题"></a-input>
+                        <a-input v-model:value="query.title" placeholder="文章标题"></a-input>
                     </a-form-item>
                 </a-col>
                 <a-col :span="8">
                     <a-form-item name="status" label="状态">
-                        <a-input v-model:value="searchState.status" placeholder="文章状态"></a-input>
+                        <a-input v-model:value="query.status" placeholder="文章状态"></a-input>
                     </a-form-item>
                 </a-col>
                 <a-col :span="8" style="text-align: right;">
@@ -21,25 +20,50 @@
             </a-row>
         </a-form>
         <div class="search-result-list">
-            <a-table :columns="columns" :data-source="tableData" bordered>
-
+            <a-table :columns="columns" :data-source="tableData" :pagination="pagination" bordered>
+                <template #bodyCell="{ column, record }">
+                    <template v-if="column.key === 'preview_img'">
+                        <a-image :width="60" :src="'/' + record.preview_img" :previewMask="false" />
+                    </template>
+                    <template v-if="column.key === 'status'">
+                        <a-switch v-model:checked="record.status" :checkedValue="1" :unCheckedValue="0" disabled />
+                    </template>
+                    <!--  操作  -->
+                    <template v-else-if="column.dataIndex === 'operation'">
+                        <a-button type="primary" shape="circle" :icon="h(EditFilled)" @click="editMenu(record)"
+                            style="margin-right: 10px;" />
+                        <a-popconfirm title="确定删除?" @confirm="deleteMenu(record.id)" okText="确定" cancelText="取消">
+                            <a-button type="primary" danger shape="circle" :icon="h(DeleteFilled)" />
+                        </a-popconfirm>
+                    </template>
+                </template>
             </a-table>
         </div>
+
+        <atricleDetail ref="articleRef" @refresh="getListData" />
     </div>
 </template>
 <script lang="ts" setup>
-import { reactive, ref } from 'vue';
-import { DownOutlined, UpOutlined } from '@ant-design/icons-vue';
-import type { FormInstance } from 'ant-design-vue';
-const expand = ref(false);
-const formRef = ref<FormInstance>();
-const searchState = reactive({
+import { reactive, ref, h } from 'vue';
+import { FormInstance, message } from 'ant-design-vue';
+import { DownOutlined, UpOutlined, DeleteFilled, EditFilled, PlusOutlined } from '@ant-design/icons-vue';
+import atricleDetail from './components/detail.vue'
+import { paginationMixin } from '@/mixin/base'
+import { getList, remove } from '@/api/article';
+
+var pagination = paginationMixin.data()
+const query = ref({
     title: '',
-    status: ''
-});
+    status: null,
+    pageSize: 10,
+    pageNo: 1,
+})
+
+const articleRef = ref()
+const formRef = ref<FormInstance>();
+
 const onFinish = (values: any) => {
-    console.log('Received values of form: ', values);
-    console.log('formState: ', searchState);
+    getListData()
 };
 
 const columns = [
@@ -47,6 +71,7 @@ const columns = [
         title: '标题',
         dataIndex: 'title',
         key: 'title',
+        width: '30%'
     },
     {
         title: '缩略图',
@@ -66,8 +91,8 @@ const columns = [
     },
     {
         title: '创建日期',
-        dataIndex: 'create_date',
-        key: 'create_date',
+        dataIndex: 'createAt',
+        key: 'createAt',
     },
     {
         title: '排序',
@@ -84,11 +109,42 @@ const columns = [
 
 const tableData = ref(null)
 
-//添加
-const addArticle = () => {
-
+const getListData = async () => {
+    var res = await getList(query.value)
+    if (res.code == 200) {
+        tableData.value = res.data.articles
+        pagination.total = res.data.total
+    }
 }
 
+//添加
+const addArticle = () => {
+    articleRef.value.showModal()
+}
+
+/**
+ * 根据Id删除菜单
+ * @param id 
+ */
+const deleteMenu = (async (id: string) => {
+    var res = await remove(id)
+    if (res.code == 200) {
+        message.success("删除成功");
+        getListData()
+    }
+})
+
+/**
+ * 编辑文章内容
+ * @param record 
+ */
+const editMenu = ((record: any) => {
+    articleRef.value.showModal(record.id, 2)
+})
+
+onMounted(() => {
+    getListData()
+})
 </script>
 <style scoped>
 #components-form-demo-advanced-search .ant-form {

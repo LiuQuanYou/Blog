@@ -6,9 +6,11 @@ const path = require('path');
 // 设置存储引擎和文件名
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+
     cb(null, 'uploads/'); // 上传的文件将会存储在 uploads/ 目录下
   },
   filename: function (req, file, cb) {
+
     cb(null, Date.now() + path.extname(file.originalname)); // 文件名将设置为时间戳加上原始文件扩展名
   }
 });
@@ -21,12 +23,20 @@ const upload = multer({
 
 
 
-router.post('/img', upload.single('image'), (req, res) => {
+router.post('/img', upload.single('file'), (req, res) => {
   // req.file 包含上传的文件信息
   if (req.file) {
-    res.send('文件上传成功！');
+    var file = req.file
+    res.send({
+      code: 200,
+      data: file.destination + file.filename,
+      message: '上传成功。'
+    })
   } else {
-    res.send('上传失败，请确保选择了正确的文件类型并且文件不超过5MB。');
+    res.send({
+      code: 500,
+      message: '上传失败，请确保选择了正确的文件类型并且文件不超过5MB。'
+    });
   }
 });
 

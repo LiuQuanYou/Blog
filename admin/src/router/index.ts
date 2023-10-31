@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Layout from '@/pages/layout/index.vue'
 import { useStore } from '@/store/index'
-import { MenuItem } from '@/models/Sidebar'
 
 export const routes = [
 	{
@@ -35,6 +34,11 @@ export const routes = [
 		name: 'login',
 		path: '/login',
 		component: () => import('@/pages/login.vue'),
+	},
+	{
+		name: 'date',
+		path: '/date',
+		component: () => import('@/pages/date.vue'),
 	},
 ]
 

@@ -81,10 +81,10 @@ const form = ref({
     page_type: '',
     status: 1,
     order_by: '1',
-    parent_id: '',
+    parent_id: null,
     title: '',
-    iconClass: 'SettingOutlined',
-    icon: ''
+    iconClass: null,
+    icon: null
 });
 
 const formatBookmarksTreeList = (list: any) => {
@@ -140,9 +140,9 @@ const onClose = () => {
         page_type: '',
         status: 1,
         order_by: '1',
-        parent_id: '',
-        icon: '',
-        iconClass: '',
+        parent_id: null,
+        icon: null,
+        iconClass: null,
     }
     open.value = false;
 };
@@ -155,6 +155,12 @@ const onSubmit = () => {
             form.value.title = form.value.label
             form.value.icon = form.value.iconClass
             var params = JSON.parse(JSON.stringify(form.value))
+            if (!params.icon) {
+                params.icon = null
+            }
+            if (!params.parent_id) {
+                params.parent_id = null
+            }
             if (pageType.value == 1) {
                 //添加
                 var res = await addMenu(params)

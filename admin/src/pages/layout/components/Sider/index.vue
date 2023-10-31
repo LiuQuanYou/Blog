@@ -50,7 +50,7 @@ const collapsed = computed(() => {
 	return props.isCollapsed
 });
 
-const selectedKeys = ref(['1'])
+const selectedKeys = ref(['0'])
 const openKeys = ref([])
 
 onMounted(() => {

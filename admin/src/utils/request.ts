@@ -29,12 +29,13 @@ service.interceptors.request.use(
 	function (config) {
 		// 在发送请求之前做些什么
 		const user = userStore()
-		config.headers.Authorization = user.token
+		config.headers.Authorization = 'Bearer ' + user.token
 		nprogress.start()
 		return config
 	},
 	function (error) {
 		// 对请求错误做些什么
+		debugger
 		console.log(error)
 		return Promise.reject(error)
 	},
@@ -54,14 +55,17 @@ service.interceptors.response.use(
 		return dataAxios
 	},
 	function (error) {
-		if (error.response.status == 403 || error.response.status == 401) {
+		var status = error.response.status
+		if (status == 403 || status == 401) {
 			router.push({
 				path: '/login',
 			})
 		}
 		// 超出 2xx 范围的状态码都会触发该函数。
 		// 对响应错误做点什么
-		console.log(error)
+		if(status == 500){
+			message.error(error.response.data.message)
+		}
 		nprogress.done()
 		return Promise.reject(error)
 	},

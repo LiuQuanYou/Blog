@@ -7,16 +7,23 @@ import autoprefixer from 'autoprefixer'
 // https://vitejs.dev/config/
 export default defineConfig({
 	server: {
-		host: '127.0.0.1',
+		host: '0.0.0.0',
 		port: 3002, // 端口
 		open: true,
 		proxy: {
 			'/api': {
 				// 请求接口中要替换的标识
-				target: 'http://192.168.2.21:8002', // 代理地址
+				target: 'http://192.168.2.21:3000', // 代理地址
 				changeOrigin: true, // 是否允许跨域
 				secure: true,
 				rewrite: path => path.replace(/^\/api/, ''), // api标志替换为''
+			},
+			'/uploads': {
+				// 请求接口中要替换的标识
+				target: 'http://192.168.2.21:3000', // 代理地址
+				changeOrigin: true, // 是否允许跨域
+				secure: true,
+				rewrite: path => path.replace(/^\/uploads/, 'uploads'), // api标志替换为''
 			},
 		},
 	},
