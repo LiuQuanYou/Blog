@@ -17,8 +17,8 @@ export const routes = [
 				component: () => import('@/pages/article/list.vue'),
 			},
 			{
-				path: 'article/test',
-				component: () => import('@/pages/article/test.vue'),
+				path: 'article/type',
+				component: () => import('@/pages/article/type.vue'),
 			},
 			{
 				path: 'setting',

@@ -1,3 +1,4 @@
+import { watchEffect } from 'vue'
 export const paginationMixin = {
 	data() {
 		return {
@@ -6,9 +7,6 @@ export const paginationMixin = {
 			total: 0,
 		}
 	},
-	methods: {
-		test() {
-			alert(123)
-		},
-	},
+	computed: {},
+	methods: {},
 }

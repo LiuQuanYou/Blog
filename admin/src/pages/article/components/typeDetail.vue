@@ -1,35 +1,20 @@
 <template>
     <div>
-        <a-modal v-model:open="open" width="1200px" :wrap-style="{ overflow: 'hidden' }" :footer="false">
+        <a-modal v-model:open="open" width="1000px" :wrap-style="{ overflow: 'hidden' }" :footer="false">
             <a-form ref="formRef" :model="formState" name="basic" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }"
-                autocomplete="off" @finish="onFinish" @finishFailed="onFinishFailed" class="base-form">
+                autocomplete="off" @finish="onFinish" @finishFailed="onFinishFailed">
                 <a-form-item label="标题" name="title" :rules="[{ required: true, message: '请输入文章标题!' }]">
                     <a-input v-model:value="formState.title" />
                 </a-form-item>
-                <a-form-item label="预览图" name="preview_img">
-                    <UploadCom field="preview_img" @uploadSuccess="imgSuccess" :file-img-list="fileList" />
-                </a-form-item>
-                <a-form-item label="状态" name="status">
-                    <a-switch v-model:checked="formState.status" :checkedValue="1" :unCheckedValue="0" />
-                </a-form-item>
-                <a-form-item label="分类" name="article_id" :rules="[{ required: true, message: '请选择分类!' }]">
-                    <a-select v-model:value="formState.article_id" placeholder="Select a person" :fieldNames="{
-                        label: 'title',
-                        value: 'id'
-                    }" style="width: 200px" :options="options"></a-select>
-                </a-form-item>
                 <a-form-item label="排序" name="order_by">
                     <a-input v-model:value="formState.order_by" />
-                </a-form-item>
-                <a-form-item label="内容" name="rich_text">
-                    <MdEditor v-model="formState.rich_text" />
                 </a-form-item>
                 <a-form-item :wrapper-col="{ offset: 4, span: 16 }">
                     <a-button type="primary" html-type="submit">保存</a-button>
                 </a-form-item>
             </a-form>
             <template #title>
-                <div ref="modalTitleRef" style="width: 100%; cursor: move">{{ formState.id ? '编辑文章' : '添加文章' }}</div>
+                <div ref="modalTitleRef" style="width: 100%; cursor: move">{{ formState.id ? '编辑分类' : '添加分类' }}</div>
             </template>
             <template #modalRender="{ originVNode }">
                 <div :style="transformStyle">
@@ -42,11 +27,7 @@
 <script lang="ts" setup>
 import { ref, computed, CSSProperties, watch, watchEffect } from 'vue';
 import { useDraggable } from '@vueuse/core';
-import { ArticleState } from '@/models/Index'
-import MdEditor from '@/components/MdEditor.vue'
-import UploadCom from '@/components/Upload.vue'
-import TEditor from '@/components/TEditor.vue';
-import { add, getEntity, update, getTypeOptions } from '@/api/article'
+import { addType, getTypeEntity, updateType } from '@/api/article'
 import { message } from 'ant-design-vue';
 
 const open = ref<boolean>(false);
@@ -55,54 +36,25 @@ const modalTitleRef = ref<any>(null);
 const emit = defineEmits(["refresh"])
 
 const fileList = ref(new Array())
-const options = ref(<any>[])
 
 /**
  * 表单字段
  */
 const formState = ref({
     title: '',
-    abstract: '',
-    preview_img: '',
-    author: '',
-    order_by: 1,
-    rich_text: '',
-    status: 1,
-    article_id: '',
+    order_by: '',
     id: ''
 });
-
-/**
- * 图片上传成功回调
- * @param e 
- */
-const imgSuccess = (e: any) => {
-    formState.value[e.field] = e.file
-}
-
-const getTypeData = async () => {
-    var res = await getTypeOptions()
-    if (res.code == 200) {
-        options.value = res.data
-    }
-}
 
 /**
  * 根据Id获取文章详情
  * @param id 文章Id
  */
 const getJoin = async (id: string) => {
-    var res = await getEntity(id)
+    var res = await getTypeEntity(id)
     if (res.code == 200) {
         var article = res.data[0]
         formState.value = { ...article }
-        if (article.preview_img) {
-            fileList.value.push({
-                uid: 1,
-                status: "removed",
-                url: '/' + article.preview_img
-            })
-        }
     }
 }
 
@@ -113,7 +65,7 @@ const getJoin = async (id: string) => {
 const onFinish = async (values: any) => {
     if (formState.value.id) {
         //编辑
-        var res = await update(formState.value.id, formState.value)
+        var res = await updateType(formState.value.id, formState.value)
         if (res.code == 200) {
             message.success("添加成功~")
             open.value = false
@@ -122,7 +74,7 @@ const onFinish = async (values: any) => {
     }
     else {
         //新增
-        var res = await add(values)
+        var res = await addType(values)
         if (res.code == 200) {
             message.success("添加成功~")
             open.value = false
@@ -135,10 +87,6 @@ const onFinishFailed = (errorInfo: any) => {
     console.log('Failed:', errorInfo);
 };
 
-const getContent = (v: string) => {
-    formState.value.rich_text = v
-}
-
 /**
  * 监听关闭之后清空表单和验证
  */
@@ -149,13 +97,7 @@ watch(open, (newVal) => {
         fileList.value = []
         formState.value = {
             title: '',
-            abstract: '',
-            preview_img: '',
-            article_id: '',
-            author: '',
-            order_by: 1,
-            rich_text: '',
-            status: 1,
+            order_by: '',
             id: ''
         }
     }
@@ -167,7 +109,6 @@ const showModal = (e: any) => {
         formState.value.id = e
         getJoin(e)
     }
-    getTypeData()
     open.value = true;
 };
 
@@ -226,9 +167,4 @@ const transformStyle = computed<CSSProperties>(() => {
 });
 </script>
   
-<style scoped>
-.base-form {
-    max-height: 700px;
-    overflow: auto;
-}
-</style>
+  

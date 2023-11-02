@@ -4,14 +4,10 @@
             <a-row :gutter="24">
                 <a-col :span="8">
                     <a-form-item name="title" label="标题">
-                        <a-input v-model:value="query.title" placeholder="文章标题"></a-input>
+                        <a-input v-model:value="query.title" placeholder="标题"></a-input>
                     </a-form-item>
                 </a-col>
-                <a-col :span="8">
-                    <a-form-item name="status" label="状态">
-                        <a-input v-model:value="query.status" placeholder="文章状态"></a-input>
-                    </a-form-item>
-                </a-col>
+                <a-col :span="8" />
                 <a-col :span="8" style="text-align: right;">
                     <a-button type="primary" @click="addArticle" style="margin-right: 8px;">添加</a-button>
                     <a-button type="primary" html-type="submit">搜索</a-button>
@@ -23,14 +19,10 @@
             <a-table :columns="columns" :data-source="tableData" :pagination="pagination" bordered>
                 <template #bodyCell="{ column, record }">
                     <template v-if="column.key === 'preview_img'">
-                        <a-image v-if="record.preview_img" :width="60" :src="'/' + record.preview_img"
-                            :previewMask="false" />
+                        <a-image :width="60" :src="'/' + record.preview_img" :previewMask="false" />
                     </template>
                     <template v-if="column.key === 'status'">
                         <a-switch v-model:checked="record.status" :checkedValue="1" :unCheckedValue="0" disabled />
-                    </template>
-                    <template v-if="column.key === 'type'">
-                        <span>{{ record.type?.title }}</span>
                     </template>
                     <!--  操作  -->
                     <template v-else-if="column.dataIndex === 'operation'">
@@ -44,16 +36,16 @@
             </a-table>
         </div>
 
-        <atricleDetail ref="articleRef" @refresh="getListData" />
+        <typeDetail ref="articleRef" @refresh="getListData" />
     </div>
 </template>
 <script lang="ts" setup>
 import { reactive, ref, h } from 'vue';
 import { FormInstance, message } from 'ant-design-vue';
 import { DownOutlined, UpOutlined, DeleteFilled, EditFilled, PlusOutlined } from '@ant-design/icons-vue';
-import atricleDetail from './components/detail.vue'
+import typeDetail from './components/typeDetail.vue'
 import { paginationMixin } from '@/mixin/base'
-import { getList, remove } from '@/api/article';
+import { getTypeList, remove } from '@/api/article';
 
 var pagination = paginationMixin.data()
 const query = ref({
@@ -78,16 +70,6 @@ const columns = [
         width: '30%'
     },
     {
-        title: '缩略图',
-        dataIndex: 'preview_img',
-        key: 'preview_img',
-    },
-    {
-        title: '状态',
-        dataIndex: 'status',
-        key: 'status',
-    },
-    {
         title: '创建日期',
         dataIndex: 'createAt',
         key: 'createAt',
@@ -99,12 +81,6 @@ const columns = [
         width: '70px'
     },
     {
-        title: '文章类型',
-        dataIndex: 'type',
-        key: 'type',
-        width: '120px'
-    },
-    {
         title: '操作',
         dataIndex: 'operation',
         width: '160px'
@@ -114,7 +90,7 @@ const columns = [
 const tableData = ref(null)
 
 const getListData = async () => {
-    var res = await getList(query.value)
+    var res = await getTypeList(query.value)
     if (res.code == 200) {
         tableData.value = res.data.articles
         pagination.total = res.data.total
